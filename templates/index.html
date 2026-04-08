@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Personas</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Registrar Persona</h2>
+
+    <form action="/registrar" method="POST">
+        <input type="text" name="dni" placeholder="DNI" required>
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="apellido" placeholder="Apellido" required>
+        <input type="text" name="direccion" placeholder="Dirección">
+        <input type="text" name="telefono" placeholder="Teléfono">
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <a href="/administrar">📋 Ver registros</a>
+</div>
+
+</body>
+</html>
