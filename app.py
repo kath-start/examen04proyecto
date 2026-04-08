@@ -43,9 +43,15 @@ def init_db():
         print("❌ No se pudo conectar a la base de datos para inicializar.")
 
 
-@app.before_first_request
+db_init_attempted = False
+
+
+@app.before_request
 def ensure_db():
-    init_db()
+    global db_init_attempted
+    if not db_init_attempted:
+        init_db()
+        db_init_attempted = True
 
 
 # ➕ INSERTAR
