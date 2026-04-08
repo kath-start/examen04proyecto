@@ -17,6 +17,29 @@ def conectar_db():
         return None
 
 
+# 🛠️ INICIALIZAR BASE DE DATOS
+def init_db():
+    conn = conectar_db()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS personas (
+                id SERIAL PRIMARY KEY,
+                dni VARCHAR(20) NOT NULL,
+                nombre VARCHAR(100) NOT NULL,
+                apellido VARCHAR(100) NOT NULL,
+                direccion TEXT,
+                telefono VARCHAR(20)
+            );
+        """)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print("✅ Tabla 'personas' creada o ya existe.")
+    else:
+        print("❌ No se pudo conectar a la base de datos para inicializar.")
+
+
 # ➕ INSERTAR
 def crear_persona(dni, nombre, apellido, direccion, telefono):
     conn = conectar_db()
@@ -85,5 +108,6 @@ def eliminar_registro(id):
 
 # 🚀 RUN
 if __name__ == '__main__':
+    init_db()
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
