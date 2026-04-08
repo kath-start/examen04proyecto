@@ -9,6 +9,9 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # 🔗 CONEXIÓN
 def conectar_db():
+    if not DATABASE_URL:
+        print("❌ ERROR: DATABASE_URL no está configurada.")
+        return None
     try:
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         return conn
@@ -40,18 +43,31 @@ def init_db():
         print("❌ No se pudo conectar a la base de datos para inicializar.")
 
 
+@app.before_first_request
+def ensure_db():
+    init_db()
+
+
 # ➕ INSERTAR
 def crear_persona(dni, nombre, apellido, direccion, telefono):
     conn = conectar_db()
     if conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO personas (dni, nombre, apellido, direccion, telefono)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (dni, nombre, apellido, direccion, telefono))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO personas (dni, nombre, apellido, direccion, telefono)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (dni, nombre, apellido, direccion, telefono))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return True
+        except Exception as e:
+            print("❌ Error al insertar persona:", e)
+            conn.close()
+            return False
+    print("❌ No hay conexión para guardar persona.")
+    return False
 
 
 # 📋 LISTAR
@@ -82,7 +98,9 @@ def registrar():
     direccion = request.form['direccion']
     telefono = request.form['telefono']
 
-    crear_persona(dni, nombre, apellido, direccion, telefono)
+    success = crear_persona(dni, nombre, apellido, direccion, telefono)
+    if not success:
+        print("❌ No se pudo guardar el registro. Revisa DATABASE_URL y los logs.")
     return redirect(url_for('index'))
 
 
